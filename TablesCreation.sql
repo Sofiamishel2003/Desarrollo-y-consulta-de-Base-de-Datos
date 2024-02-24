@@ -7,13 +7,17 @@ CREATE TABLE teams (
     team_id INTEGER PRIMARY KEY,
     name VARCHAR(255)
 );
+CREATE TABLE players (
+    player_id INTEGER PRIMARY KEY,
+    name VARCHAR(255)
+);
 CREATE TABLE games (
     game_id INTEGER PRIMARY KEY,
-    league_id INTEGER,
+    league_id INTEGER REFERENCES leagues(league_id),
     season VARCHAR(255),
-    date TIMESTAMP,
-    home_team_id INTEGER,
-    away_team_id INTEGER,
+    date TIMESTAMP, 
+    home_team_id INTEGER REFERENCES teams(team_id),
+    away_team_id INTEGER REFERENCES teams(team_id),
     home_goals INTEGER,
     away_goals INTEGER,
     home_probability FLOAT,
@@ -41,18 +45,12 @@ CREATE TABLE games (
     VCA FLOAT,
     PSCH FLOAT,
     PSCD FLOAT,
-    PSCA FLOAT,
-    FOREIGN KEY (league_id) REFERENCES leagues(league_id),
-    FOREIGN KEY (home_team_id) REFERENCES teams(team_id),
-    FOREIGN KEY (away_team_id) REFERENCES teams(team_id)
+    PSCA FLOAT
 );
-CREATE TABLE players (
-    player_id INTEGER PRIMARY KEY,
-    name VARCHAR(255)
-);
+
 CREATE TABLE appearances (
-    game_id INTEGER,
-    player_id INTEGER,
+    game_id INTEGER REFERENCES games(game_id),
+    player_id INTEGER REFERENCES players(player_id),
     goals INTEGER,
     own_goals INTEGER,
     shots INTEGER,
@@ -62,46 +60,45 @@ CREATE TABLE appearances (
     assists INTEGER,
     key_passes INTEGER,
     xassists FLOAT,
-    position VARCHAR(50),
+    position VARCHAR(255),
     position_order INTEGER,
     yellow_card INTEGER,
     red_card INTEGER,
     time_played INTEGER,
-    substitute_in BOOLEAN,
-    substitute_out BOOLEAN,
-    league_id INTEGER,
-    FOREIGN KEY (game_id) REFERENCES games(game_id),
-    FOREIGN KEY (player_id) REFERENCES players(player_id),
-    FOREIGN KEY (league_id) REFERENCES leagues(league_id)
+    substitute_in INTEGER,
+    substitute_out INTEGER,
+    league_id INTEGER REFERENCES leagues(league_id)
 );
+
 CREATE TABLE shots (
-    game_id INTEGER,
-    shooter_id INTEGER,
-    assister_id INTEGER,
+    game_id INTEGER REFERENCES games(game_id),
+    shooter_id INTEGER REFERENCES players(player_id),
+    assister_id INTEGER REFERENCES players(player_id),
     minute INTEGER,
-    situation VARCHAR(50),
-    last_action VARCHAR(50),
-    shot_type VARCHAR(50),
-    shot_result VARCHAR(50),
+    situation VARCHAR(255),
+    last_action VARCHAR(255),
+    shot_type VARCHAR(255),
+    shot_result VARCHAR(255),
     xgoal FLOAT,
     position_x FLOAT,
-    position_y FLOAT,
-    FOREIGN KEY (game_id) REFERENCES games(game_id),
-    FOREIGN KEY (shooter_id) REFERENCES players(player_id),
-    FOREIGN KEY (assister_id) REFERENCES players(player_id)
+    position_y FLOAT
 );
+
 CREATE TABLE teamstats (
-    game_id INTEGER,
-    team_id INTEGER,
+    game_id INTEGER REFERENCES games(game_id),
+    team_id INTEGER REFERENCES teams(team_id),
+    season VARCHAR(255),
+    date TIMESTAMP, 
+    location VARCHAR(255),
     goals INTEGER,
-    own_goals INTEGER,
-    shots INTEGER,
     xgoals FLOAT,
-    xgoal_chain FLOAT,
-    xgoal_buildup FLOAT,
-    assists INTEGER,
-    key_passes INTEGER,
-    xassists FLOAT,
-    FOREIGN KEY (game_id) REFERENCES games(game_id),
-    FOREIGN KEY (team_id) REFERENCES teams(team_id)
+    shots INTEGER,
+    shots_on_target INTEGER,
+    deep INTEGER,
+    ppda FLOAT,
+    fouls INTEGER,
+    corners INTEGER,
+    yellow_cards INTEGER,
+    red_cards INTEGER,
+    result VARCHAR(50)
 );
