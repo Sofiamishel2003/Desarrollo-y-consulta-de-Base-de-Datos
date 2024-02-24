@@ -50,7 +50,7 @@ def writer(tabla_db, archivo_csv):
             batch = []
             for row in csvreader:
                 # Asumiendo que la columna de fecha está en el índice 3 en el archivo de 'games'
-                if tabla_db == 'games':
+                if tabla_db == 'games' or tabla_db == 'teamstats':
                     row[3] = convert_date_format(row[3])
                 row = [None if val.lower() == 'na' else val for val in row]
                 batch.append(row)
