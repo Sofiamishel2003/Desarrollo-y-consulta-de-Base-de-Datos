@@ -5,6 +5,7 @@ WITH LeaderPlayers AS (
         g.season,
         g.league_id,
         a.player_id AS leader_player_id,
+        g.home_team_id AS player_team_id,  
         ROW_NUMBER() OVER (PARTITION BY g.season, g.league_id ORDER BY SUM(a.goals) DESC, SUM(a.assists) DESC, SUM(a.key_passes) DESC) AS ranking
     FROM
         appearances a
@@ -13,7 +14,8 @@ WITH LeaderPlayers AS (
     GROUP BY
         g.season,
         g.league_id,
-        a.player_id
+        a.player_id,
+        g.home_team_id  -- Grouping by home team_id
 )
 
 SELECT
@@ -21,6 +23,7 @@ SELECT
     lp.league_id,
     lp.leader_player_id,
     p.name AS leader_player_name,
+    t.name AS player_team_name,  -- Added team name column
     l.name AS league_name,
     SUM(a.goals) AS total_goals,
     SUM(a.assists) AS total_assists,
@@ -28,11 +31,17 @@ SELECT
 FROM
     LeaderPlayers lp
 JOIN
-    appearances a ON lp.leader_player_id = a.player_id
+    appearances a ON  lp.league_id = a.league_id
+                  AND lp.leader_player_id = a.player_id
 JOIN
     players p ON lp.leader_player_id = p.player_id
 JOIN
     leagues l ON lp.league_id = l.league_id
+JOIN
+    games g ON lp.season = g.season
+           AND lp.league_id = g.league_id
+JOIN
+    teams t ON lp.player_team_id = t.team_id
 WHERE
     lp.ranking = 1
 GROUP BY
@@ -40,7 +49,9 @@ GROUP BY
     lp.league_id,
     lp.leader_player_id,
     p.name,
+    t.name,  
     l.name;
+
 
 --7. Obtenga el rendimiento de los equipos en promedio, comparando goles metidos contra la expectativa de goles, determinando qué equipo era quien tenía más expectativa de goles contra quien fue en realidad el que acertó más goles (goals vs expected goals, xgoals) en general, pero también es necesario que lo muestre si dichos equipos jugaron como locales o como extranjeros.--
 
